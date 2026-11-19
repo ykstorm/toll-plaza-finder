@@ -1,0 +1,327 @@
+{
+  "info": {
+    "name": "Toll Plaza Finder",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Set baseUrl to the deployed URL or http://localhost:8080"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Bengaluru 560064 to Pune 411045 (Mappls comparison pair)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('plazas ordered by distance', () => { const t = pm.response.json().tollPlazas; for (let i = 1; i < t.length; i++) pm.expect(t[i].distanceFromSource).to.be.at.least(t[i-1].distanceFromSource); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"560064\",\n  \"destinationPincode\": \"411045\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delhi 110001 to Bengaluru 560001 (spec example)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('plazas ordered by distance', () => { const t = pm.response.json().tollPlazas; for (let i = 1; i < t.length; i++) pm.expect(t[i].distanceFromSource).to.be.at.least(t[i-1].distanceFromSource); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"110001\",\n  \"destinationPincode\": \"560001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Same request again, check X-Route-Source: MEMORY",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200', () => pm.response.to.have.status(200));",
+              "pm.test('plazas ordered by distance', () => { const t = pm.response.json().tollPlazas; for (let i = 1; i < t.length; i++) pm.expect(t[i].distanceFromSource).to.be.at.least(t[i-1].distanceFromSource); });",
+              "pm.test('served from cache', () => pm.expect(pm.response.headers.get('X-Route-Source')).to.eql('MEMORY'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"110001\",\n  \"destinationPincode\": \"560001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Short city trip with no tolls",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 and empty list', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().tollPlazas).to.be.empty; });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"560001\",\n  \"destinationPincode\": \"560064\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invalid pincode format",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));",
+              "pm.test('error message', () => pm.expect(pm.response.json().error).to.eql('Invalid source or destination pincode'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"11000\",\n  \"destinationPincode\": \"560001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pincode that does not exist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));",
+              "pm.test('error message', () => pm.expect(pm.response.json().error).to.eql('Invalid source or destination pincode'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"999999\",\n  \"destinationPincode\": \"560001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Same source and destination",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400', () => pm.response.to.have.status(400));",
+              "pm.test('error message', () => pm.expect(pm.response.json().error).to.eql('Source and destination pincodes cannot be the same'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"110001\",\n  \"destinationPincode\": \"110001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Island with no road connection (Port Blair)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('422', () => pm.response.to.have.status(422));",
+              "pm.test('error message', () => pm.expect(pm.response.json().error).to.eql('No drivable route found between the given pincodes'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourcePincode\": \"110001\",\n  \"destinationPincode\": \"744101\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/toll-plazas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "toll-plazas"
+          ]
+        }
+      }
+    }
+  ]
+}
