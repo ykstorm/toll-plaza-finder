@@ -1,0 +1,26 @@
+# docker compose up --build   then open http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tolls
+      POSTGRES_USER: tolls
+      POSTGRES_PASSWORD: tolls
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tolls -d tolls"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/tolls
+      DATABASE_USERNAME: tolls
+      DATABASE_PASSWORD: tolls
+    ports:
+      - "8080:8080"
