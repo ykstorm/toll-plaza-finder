@@ -116,7 +116,7 @@ I'd have used Bucket4j in a bigger service. Here it's 40 lines and one less depe
 
 ## Testing
 
-126 tests: unit, a web slice, integration with Testcontainers Postgres, and ArchUnit. Line coverage is 95%, and the build fails below 90%.
+131 tests: unit, a web slice, integration with Testcontainers Postgres, and ArchUnit. Line coverage is 95%, and the build fails below 90%.
 
 The ones I think matter most:
 

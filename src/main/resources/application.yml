@@ -2,7 +2,7 @@ spring:
   application:
     name: toll-plaza-finder
   datasource:
-    # either set DATABASE_URL (jdbc:postgresql://...) or the individual parts, which is what Render hands you
+    # DATABASE_URL can be jdbc:postgresql://... or a postgres://user:pass@host/db url (DatabaseUrlPostProcessor splits it)
     url: ${DATABASE_URL:jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:tolls}}
     username: ${DATABASE_USERNAME:tolls}
     password: ${DATABASE_PASSWORD:tolls}

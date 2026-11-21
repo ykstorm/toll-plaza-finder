@@ -64,7 +64,7 @@ or with your own Postgres (defaults are db `tolls`, user `tolls`, password `toll
 ./mvnw verify
 ```
 
-126 tests, 95% line coverage, and the build fails under 90%. The integration tests use Testcontainers, so Docker has to be running. If you don't have Docker, point them at any Postgres with `IT_DATABASE_URL=jdbc:postgresql://localhost:5432/tolls_it`.
+131 tests, 95% line coverage, and the build fails under 90%. The integration tests use Testcontainers, so Docker has to be running. If you don't have Docker, point them at any Postgres with `IT_DATABASE_URL=jdbc:postgresql://localhost:5432/tolls_it`.
 
 There's also a Postman collection in `postman/` with every happy path and error case, with assertions on each.
 
@@ -90,7 +90,7 @@ Everything has a default. The ones you might change:
 
 | Env var | Default |
 | --- | --- |
-| `DATABASE_URL` | `jdbc:postgresql://localhost:5432/tolls` (or set `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`) |
+| `DATABASE_URL` | `jdbc:postgresql://localhost:5432/tolls`. A `postgres://user:pass@host/db` URL works too |
 | `DATABASE_USERNAME`, `DATABASE_PASSWORD` | `tolls`, `tolls` |
 | `OSRM_BASE_URL` | `https://router.project-osrm.org` |
 | `TOLLS_CORRIDOR_METERS` | `750` |
@@ -98,7 +98,11 @@ Everything has a default. The ones you might change:
 
 ## Deploying
 
-`render.yaml` sets up the API and a Postgres on Render. New > Blueprint, pick the repo, done.
+It's one Docker image plus a Postgres, so it runs anywhere that takes a Dockerfile.
+
+**Vercel.** Import the repo. Vercel picks up the Dockerfile and runs it with its container runtime. Add Postgres from the Marketplace (Neon) and it sets `DATABASE_URL` for you. Paste-ready `postgres://` URLs work as they are, the app converts them.
+
+**Render.** New > Blueprint > pick the repo. `render.yaml` creates the API and the database together.
 
 ## What's not great
 
