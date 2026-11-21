@@ -64,7 +64,7 @@ or with your own Postgres (defaults are db `tolls`, user `tolls`, password `toll
 ./mvnw verify
 ```
 
-115 tests, 95% line coverage, and the build fails under 90%. The integration tests use Testcontainers, so Docker has to be running. If you don't have Docker, point them at any Postgres with `IT_DATABASE_URL=jdbc:postgresql://localhost:5432/tolls_it`.
+126 tests, 95% line coverage, and the build fails under 90%. The integration tests use Testcontainers, so Docker has to be running. If you don't have Docker, point them at any Postgres with `IT_DATABASE_URL=jdbc:postgresql://localhost:5432/tolls_it`.
 
 There's also a Postman collection in `postman/` with every happy path and error case, with assertions on each.
 
@@ -75,11 +75,14 @@ There's also a Postman collection in `postman/` with every happy path and error 
 | Status | When |
 | --- | --- |
 | 200 | Found a route. `tollPlazas` can be empty |
+| 429 | Too many requests from you, check `Retry-After` |
 | 400 | Pincode is malformed, doesn't exist, or source equals destination |
 | 422 | No road between them |
 | 503 | OSRM is down or timed out |
 
 Errors look like `{"error": "..."}`. For the cases in the spec, the messages match it exactly.
+
+There's also a 429 if one client sends more than 60 requests a minute. Every new pincode pair is a call to the public OSRM server, and I don't want one script getting us banned. Each response carries an `X-Request-Id` (yours if you send one), and the same id is on every log line for that request.
 
 ## Config
 
@@ -91,6 +94,7 @@ Everything has a default. The ones you might change:
 | `DATABASE_USERNAME`, `DATABASE_PASSWORD` | `tolls`, `tolls` |
 | `OSRM_BASE_URL` | `https://router.project-osrm.org` |
 | `TOLLS_CORRIDOR_METERS` | `750` |
+| `TOLLS_RATE_LIMIT_PER_MINUTE` | `60` |
 
 ## Deploying
 

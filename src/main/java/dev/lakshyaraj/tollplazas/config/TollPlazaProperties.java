@@ -16,7 +16,8 @@ import java.time.Duration;
 public record TollPlazaProperties(@Valid @NotNull Data data,
                                   @Valid @NotNull Matching matching,
                                   @Valid @NotNull Routing routing,
-                                  @Valid @NotNull Cache cache) {
+                                  @Valid @NotNull Cache cache,
+                                  @Valid @NotNull RateLimit rateLimit) {
 
     public record Data(@NotNull Resource tollPlazaCsv, @NotNull Resource pincodeCsv, boolean importOnStartup) {
     }
@@ -31,5 +32,8 @@ public record TollPlazaProperties(@Valid @NotNull Data data,
     }
 
     public record Cache(@Min(1) long memoryMaxEntries, @NotNull Duration memoryTtl, @NotNull Duration databaseTtl) {
+    }
+
+    public record RateLimit(@Min(1) int requestsPerMinute) {
     }
 }

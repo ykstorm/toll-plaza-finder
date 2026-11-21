@@ -86,6 +86,7 @@ class TollPlazaApiIT extends PostgresIntegrationTest {
         request("560064", "572101")
                 .andExpect(status().isOk())
                 .andExpect(header().string("X-Route-Source", "PROVIDER"))
+                .andExpect(header().exists("X-Request-Id"))
                 .andExpect(jsonPath("$.route.distanceInKm").value(62.0))
                 // two Nelamangala plazas 640 m apart, only the one nearest the road should come back
                 .andExpect(jsonPath("$.tollPlazas.length()").value(3))

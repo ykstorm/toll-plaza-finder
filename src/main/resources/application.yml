@@ -44,6 +44,9 @@ tolls:
     memory-max-entries: 10000
     memory-ttl: 6h
     database-ttl: 30d
+  rate-limit:
+    # per client ip. plenty for a person in swagger, stops a script from burning our OSRM quota
+    requests-per-minute: ${TOLLS_RATE_LIMIT_PER_MINUTE:60}
 
 management:
   endpoints:
@@ -63,5 +66,8 @@ springdoc:
     path: /v3/api-docs
 
 logging:
+  pattern:
+    # puts the X-Request-Id on every line
+    level: "%5p [%X{requestId:-}]"
   level:
     dev.lakshyaraj.tollplazas: INFO

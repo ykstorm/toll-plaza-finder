@@ -106,9 +106,17 @@ If Postgres is down, the cache logs a warning and goes straight to OSRM. Failure
 
 The island case: OSRM always snaps a point to the nearest road it has, no matter how far. Port Blair got snapped ~494 km away to the Myanmar coast and came back as a 3,562 km "route" with 29 toll plazas on it. OSRM's response says how far it moved each point, so anything over 25 km is now a 422.
 
+## Rate limiting and request ids
+
+The cache handles repeat routes, but every new pincode pair is a call to the public OSRM server. A script looping over pincodes would get us blocked there. So there's a token bucket per client IP, 60 a minute by default. Over that you get a 429 with `Retry-After`. Docs and health checks aren't limited. The IP comes from `getRemoteAddr`, which is the real client because forward-headers handling is on behind Render's proxy. The buckets live in a Caffeine cache that expires idle clients, so memory doesn't grow forever. The tests drive it with a fake clock, so nothing sleeps.
+
+Every request gets an `X-Request-Id`, or keeps the one the caller sent if it looks sane. It goes into the logging MDC, so every log line for one request shares an id. I reject ids with newlines or odd characters so nobody can forge log lines through a header.
+
+I'd have used Bucket4j in a bigger service. Here it's 40 lines and one less dependency.
+
 ## Testing
 
-115 tests: unit, a web slice, integration with Testcontainers Postgres, and ArchUnit. Line coverage is 95%, and the build fails below 90%.
+126 tests: unit, a web slice, integration with Testcontainers Postgres, and ArchUnit. Line coverage is 95%, and the build fails below 90%.
 
 The ones I think matter most:
 
@@ -131,7 +139,6 @@ I asked OSRM for alternative routes and it returned only one. So this is a routi
 - A road passing over or under a tolled highway right next to a plaza could match by mistake. Toll plazas are rarely near interchanges, and fixing it properly needs plaza direction data the CSV doesn't have.
 - No toll prices or vehicle classes. The CSV has neither.
 - The public OSRM server has no SLA. In production I'd self-host it with the India extract.
-- No rate limiting on the API. The cache absorbs repeats, but someone could still hammer it with unique pairs. I'd add a token bucket per client next.
 
 ## If I kept going
 
