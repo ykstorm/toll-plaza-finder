@@ -4,10 +4,10 @@ Give it two Indian pincodes, it tells you which toll plazas you'll drive through
 
 Built for the FreightFox backend assignment. Java 21, Spring Boot 3.5, Postgres.
 
-**Live:** LIVE_URL (redirects to Swagger. Free tier, so the first hit after a while takes ~40s to wake up)
+**Live:** https://toll-plaza-finder.vercel.app (opens Swagger. It scales to zero when idle, so the first request after a quiet spell takes ~15s while Java starts)
 
 ```bash
-curl -X POST LIVE_URL/api/v1/toll-plazas \
+curl -X POST https://toll-plaza-finder.vercel.app/api/v1/toll-plazas \
   -H 'Content-Type: application/json' \
   -d '{"sourcePincode": "560064", "destinationPincode": "411045"}'
 ```
