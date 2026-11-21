@@ -28,14 +28,14 @@ public record TollPlazaResponse(RouteDto route, List<TollPlazaDto> tollPlazas) {
     public record RouteDto(
             @Schema(example = "560064") String sourcePincode,
             @Schema(example = "411045") String destinationPincode,
-            @Schema(description = "Road distance in km", example = "842.3") double distanceInKm) {
+            @Schema(description = "Road distance in km", example = "849.3") double distanceInKm) {
     }
 
     public record TollPlazaDto(
-            @Schema(example = "Hoskote Toll Plaza") String name,
-            @Schema(example = "13.0789") double latitude,
-            @Schema(example = "77.7921") double longitude,
-            @Schema(description = "Road distance from the source in km, measured along the route", example = "38.4")
+            @Schema(example = "Banglaore-Nelamangala Toll Plaza") String name,
+            @Schema(example = "13.09062") double latitude,
+            @Schema(example = "77.400019") double longitude,
+            @Schema(description = "Road distance from the source in km, measured along the route", example = "25.5")
             double distanceFromSource) {
     }
 }

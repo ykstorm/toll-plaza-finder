@@ -35,16 +35,25 @@ public class TollPlazaController {
             description = "Routes from source to destination, then returns every toll plaza the route passes, "
                     + "in the order you reach them. distanceFromSource is road distance along the route.")
     @ApiResponse(responseCode = "200", description = "Route found. tollPlazas can be empty.",
-            headers = @Header(name = ROUTE_SOURCE_HEADER,
-                    description = "Where the route came from: MEMORY, DATABASE (both cached) or PROVIDER"))
+            headers = {
+                    @Header(name = ROUTE_SOURCE_HEADER,
+                            description = "Where the route came from: MEMORY, DATABASE (both cached) or PROVIDER"),
+                    @Header(name = "X-Request-Id",
+                            description = "Same id as on this request's log lines. Send your own to trace it")})
     @ApiResponse(responseCode = "400", description = "Bad, unknown or identical pincodes",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class), examples = {
                     @ExampleObject(name = "invalid", value = "{\"error\": \"Invalid source or destination pincode\"}"),
                     @ExampleObject(name = "same", value = "{\"error\": \"Source and destination pincodes cannot be the same\"}")}))
-    @ApiResponse(responseCode = "422", description = "No drivable route between the pincodes, e.g. an island",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "422", description = "No road between the pincodes, e.g. 744101 (Port Blair)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class), examples =
+                    @ExampleObject(value = "{\"error\": \"No drivable route found between the given pincodes\"}")))
+    @ApiResponse(responseCode = "429", description = "More than 60 requests a minute from one client",
+            headers = @Header(name = "Retry-After", description = "Seconds until you can try again"),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class), examples =
+                    @ExampleObject(value = "{\"error\": \"Too many requests, try again in 12s\"}")))
     @ApiResponse(responseCode = "503", description = "Routing provider down or timed out",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class), examples =
+                    @ExampleObject(value = "{\"error\": \"Routing service is temporarily unavailable, please retry\"}")))
     public ResponseEntity<TollPlazaResponse> findTollPlazas(@Valid @RequestBody TollPlazaRequest request) {
         TollRouteResult result = service.findTollPlazas(request.sourcePincode(), request.destinationPincode());
         return ResponseEntity.ok()
